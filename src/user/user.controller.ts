@@ -28,7 +28,15 @@ export class UserController {
   @Get('sendCaptcha')
   async sendCaptcha(@Query('email') email: string) {
     const code = Math.random().toString().slice(2, 8)
-    await this.redisService.set(`captcha_${email}`, code, 5 * 60)
+
+    const email_key = `captcha_${email}`
+
+    const exist_code = await this.redisService.get(email_key)
+    if (exist_code) {
+      return '验证码已发送，请不要重复发送'
+    }
+
+    await this.redisService.set(email_key, code, 5 * 60)
 
     await this.emailService.sendMail({
       to: email,

@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common'
-import { createTransport, TransPorter } from 'nodemailer'
+import { Inject, Injectable } from '@nestjs/common'
+import { createTransport, Transporter } from 'nodemailer'
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class EmailService {
-  transporter: TransPorter;
+  transporter: Transporter;
+
+  @Inject(ConfigService)
+  private configService: ConfigService;
 
   constructor() {
     this.transporter = createTransport({
@@ -11,8 +15,8 @@ export class EmailService {
       port: 587,
       secure: false,
       auth: {
-        user: '290506494@qq.com',
-        pass: '授权码'
+        user: this.configService.get('proxy_email'),
+        pass: this.configService.get('proxy_email_auth')
       }
     })
   }
@@ -21,7 +25,7 @@ export class EmailService {
     await this.transporter.sendMail({
       from: {
         name: '会议室预订系统',
-        address: '290506494@qq.com'
+        address: this.configService.get('proxy_email') as string
       },
       to,
       subject,
