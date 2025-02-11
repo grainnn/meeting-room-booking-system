@@ -6,10 +6,7 @@ import { ConfigService } from '@nestjs/config';
 export class EmailService {
   transporter: Transporter;
 
-  @Inject(ConfigService)
-  private configService: ConfigService;
-
-  constructor() {
+  constructor(private configService: ConfigService) {
     this.transporter = createTransport({
       host: 'smtp.qq.com',
       port: 587,
@@ -22,6 +19,7 @@ export class EmailService {
   }
 
   async sendMail({ to, subject, html }) {
+    console.log(this.configService.get('proxy_email'))
     await this.transporter.sendMail({
       from: {
         name: '会议室预订系统',
