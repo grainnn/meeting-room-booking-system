@@ -7,11 +7,17 @@ import {
   Param,
   Delete,
   Query,
-  Inject
+  Inject,
+	HttpStatus,
+	UnauthorizedException
 } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 import { UserService } from './user.service';
-import { RegisterUserDto } from './dto/register-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { RegisterDto } from './dto/register.dto';
+import { UpdateDto } from './dto/update.dto';
+import { LoginDto } from './dto/login.dto';
+
 import { RedisService } from 'src/redis/redis.service';
 import { EmailService } from 'src/email/email.service';
 
@@ -23,8 +29,27 @@ export class UserController {
   private redisService: RedisService;
 
   @Inject(EmailService)
-  private emailService: EmailService;
+	private emailService: EmailService;
+	
 
+	@ApiTags('注册')
+	// 用户注册发送验证码
+	@ApiOperation({
+		summary: '用户注册发送验证码'
+	})
+	@ApiQuery({
+		name: 'email',
+		type: String,
+		description: '接收验证码使用的邮箱',
+		required: true,
+		example: 'haha@163.com'
+	})
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: '验证码发送成功',
+		type: String,
+		example: 200
+	})
   @Get('sendCaptcha')
   async sendCaptcha(@Query('email') email: string) {
     const code = Math.random().toString().slice(2, 8)
@@ -47,25 +72,46 @@ export class UserController {
     return '发送成功'
   }
 
+	@ApiTags('注册')
+	// 使用验证码注册账号
+	@ApiOperation({
+		summary: '使用验证码注册账号'
+	})
+	@ApiBody({})
   @Post('register')
-  register(@Body() RegisterUserDto: RegisterUserDto) {
-    console.log(RegisterUserDto);
-    return this.userService.register(RegisterUserDto);
+  register(@Body() registerDto: RegisterDto) {
+    return this.userService.register(registerDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
+	@Post('login')
+	async login(@Body() loginDto: LoginDto) {
+		await this.userService.login(loginDto, false)
 
+		return '登录成功'
+	}
+	
+	@ApiParam({
+		name: 'id',
+		description: '用户id',
+		required: true,
+		example: 1
+	})
+	@ApiResponse({
+		status: HttpStatus.UNAUTHORIZED,
+		description: 'id不合法'
+	})
   @Get(':id')
-  findOne(@Param('id') id: string) {
+	findOne(@Param('id') id: string) {
+		if (+id < 1) {
+			throw new UnauthorizedException()
+		}
+
     return this.userService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  update(@Param('id') id: string, @Body() updateDto: UpdateDto) {
+    return this.userService.update(+id, updateDto);
   }
 
   @Delete(':id')

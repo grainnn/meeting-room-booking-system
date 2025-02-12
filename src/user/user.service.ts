@@ -5,13 +5,15 @@ import {
   Injectable,
   Logger
 } from '@nestjs/common';
-import { RegisterUserDto } from './dto/register-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+
+import { RegisterDto } from './dto/register.dto';
+import { UpdateDto } from './dto/update.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { RedisService } from 'src/redis/redis.service';
 import { md5 } from 'src/tools';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class UserService {
@@ -22,21 +24,21 @@ export class UserService {
   @Inject(RedisService)
   private redisService: RedisService;
 
-  async register(registerUserDto: RegisterUserDto) {
+  async register(registerDto: RegisterDto) {
     const captcha = await this.redisService.get(
-      `captcha_${registerUserDto.email}`
+      `captcha_${registerDto.email}`
     );
 
     if (!captcha) {
       throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
     }
 
-    if (registerUserDto.captcha !== captcha) {
+    if (registerDto.captcha !== captcha) {
       throw new HttpException('验证码错误', HttpStatus.BAD_REQUEST);
     }
 
     const foundUser = await this.userRepository.findOneBy({
-      username: registerUserDto.username
+      username: registerDto.username
     });
 
     if (foundUser) {
@@ -44,9 +46,9 @@ export class UserService {
     }
 
     const newUser = new User();
-    newUser.username = registerUserDto.username;
-    newUser.email = registerUserDto.email;
-    newUser.password = md5(registerUserDto.password);
+    newUser.username = registerDto.username;
+    newUser.email = registerDto.email;
+    newUser.password = md5(registerDto.password);
 
     try {
       await this.userRepository.save(newUser);
@@ -54,6 +56,26 @@ export class UserService {
       this.logger.error(err, UserService);
       return '注册失败';
     }
+  }
+
+  async login(loginDto: LoginDto, isAdmin: boolean) {
+    const user = await this.userRepository.findOne({
+      where: {
+        username: loginDto.username,
+        isAdmin
+      },
+      relations: ['roles', 'roles.permissions']
+    }) as LoginDto
+
+    if (!user) {
+      throw new HttpException('用户名或密码错误', HttpStatus.BAD_REQUEST);
+    }
+
+    if (user.password !== md5(user.password)) {
+      throw new HttpException('用户名或密码错误', HttpStatus.BAD_REQUEST);
+    }
+
+    return user;
   }
 
   findAll() {
@@ -64,7 +86,7 @@ export class UserService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  update(id: number, UpdateDto: UpdateDto) {
     return `This action updates a #${id} user`;
   }
 
