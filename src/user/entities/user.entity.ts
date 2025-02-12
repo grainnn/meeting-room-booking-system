@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
+import { Exclude, Expose } from 'class-transformer';
 
 import { Role } from './role.entity';
 
@@ -24,18 +25,19 @@ export class User {
   })
   username: string;
 
+	// 屏蔽vo
+  @Exclude()
   @Column({
     length: 50,
     comment: '密码'
   })
   password: string;
 
-  @Column({
-    name: 'nick_name',
-    length: 50,
-    comment: '昵称'
-  })
-  nickName: string;
+	// 追加vo
+	@Expose()
+	get name(): string {
+		return `${this.username} ${this.email}`
+	}
 
   @Column({
     comment: '邮箱',

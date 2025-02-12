@@ -9,7 +9,9 @@ import {
   Query,
   Inject,
 	HttpStatus,
-	UnauthorizedException
+	UnauthorizedException,
+	UseInterceptors,
+	ClassSerializerInterceptor
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -31,6 +33,8 @@ export class UserController {
   @Inject(EmailService)
 	private emailService: EmailService;
 	
+
+	// 大量使用swagger会导致controller看起来比较混乱
 
 	@ApiTags('注册')
 	// 用户注册发送验证码
@@ -89,7 +93,15 @@ export class UserController {
 
 		return '登录成功'
 	}
+
+
+	@UseInterceptors(ClassSerializerInterceptor)
+	@Get()
+	findAll() { 
+		return this.userService.findAll();
+	}
 	
+	@UseInterceptors(ClassSerializerInterceptor)
 	@ApiParam({
 		name: 'id',
 		description: '用户id',
