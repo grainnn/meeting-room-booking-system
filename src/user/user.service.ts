@@ -71,12 +71,14 @@ export class UserService {
       throw new HttpException('用户名或密码错误', HttpStatus.BAD_REQUEST);
     }
 
-    if (user.password !== md5(user.password)) {
+    if (user.password !== md5(loginDto.password)) {
       throw new HttpException('用户名或密码错误', HttpStatus.BAD_REQUEST);
     }
 
     return user;
   }
+
+  // async adminLogin(loginDto: LoginDto, isAdmin: )
 
   findAll() {
     return this.userRepository.find();

@@ -89,9 +89,16 @@ export class UserController {
 
 	@Post('login')
 	async login(@Body() loginDto: LoginDto) {
-		await this.userService.login(loginDto, false)
+		await this.userService.login(loginDto, false);
 
-		return '登录成功'
+		return '登录成功';
+	}
+
+	@Post('adminLogin')
+	async adminLogin(@Body() loginDto: LoginDto) {
+		await this.userService.login(loginDto, true);
+
+		return '登录成功';
 	}
 
 
