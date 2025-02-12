@@ -22,6 +22,8 @@ import { LoginDto } from './dto/login.dto';
 
 import { RedisService } from 'src/redis/redis.service';
 import { EmailService } from 'src/email/email.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('user')
 export class UserController {
@@ -32,6 +34,12 @@ export class UserController {
 
   @Inject(EmailService)
 	private emailService: EmailService;
+
+	@Inject(JwtService)
+	private jwtService: JwtService;
+
+	@Inject(ConfigService)
+	private configService: ConfigService;
 	
 
 	// 大量使用swagger会导致controller看起来比较混乱
@@ -87,20 +95,37 @@ export class UserController {
     return this.userService.register(registerDto);
   }
 
+	@UseInterceptors(ClassSerializerInterceptor)
 	@Post('login')
 	async login(@Body() loginDto: LoginDto) {
-		await this.userService.login(loginDto, false);
+		const user = await this.userService.login(loginDto, false) as any;
 
-		return '登录成功';
+		user.accessToken = this.jwtService.sign({
+			userId: user.id,
+			username: user.username
+		}, {
+			expiresIn: this.configService.get('jwt_access_token_expires_time') || '60m'
+		});
+
+		user.refreshToken = this.jwtService.sign({
+      userId: user.id
+    }, {
+      expiresIn: this.configService.get('jwt_refresh_token_expres_time') || '7d'
+    });
+
+		return user;
 	}
 
+	@UseInterceptors(ClassSerializerInterceptor)
 	@Post('adminLogin')
 	async adminLogin(@Body() loginDto: LoginDto) {
-		await this.userService.login(loginDto, true);
+		const user = await this.userService.login(loginDto, true);
 
-		return '登录成功';
+		return user;
 	}
 
+	@Get('refresh_token')
+	refreshToken() { }
 
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get()

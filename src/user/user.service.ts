@@ -58,7 +58,7 @@ export class UserService {
     }
   }
 
-  async login(loginDto: LoginDto, isAdmin: boolean) {
+  async login(loginDto: LoginDto, isAdmin: boolean): Promise<User> {
     const user = await this.userRepository.findOne({
       where: {
         username: loginDto.username,
@@ -75,7 +75,7 @@ export class UserService {
       throw new HttpException('用户名或密码错误', HttpStatus.BAD_REQUEST);
     }
 
-    return user;
+    return user as User;
   }
 
   // async adminLogin(loginDto: LoginDto, isAdmin: )

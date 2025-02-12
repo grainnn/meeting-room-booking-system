@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -18,6 +19,21 @@ import { EmailModule } from './email/email.module';
       isGlobal: true,
       envFilePath: 'src/.env'
     }),
+
+    JwtModule.registerAsync(
+      {
+        inject: [ConfigService],
+        global: true,
+        useFactory(configService: ConfigService) {
+          return {
+            secret: configService.get('jwt_secret'),
+            signOptions: {
+              expiresIn: '60m'
+            }
+          }
+        }
+      }
+    ),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
