@@ -2,16 +2,17 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
-
 import { User } from './user/entities/user.entity';
 import { Permission } from './user/entities/permission.entity';
 import { Role } from './user/entities/role.entity';
 import { RedisModule } from './redis/redis.module';
 import { EmailModule } from './email/email.module';
+import { LoginGuard } from './login.guard';
 
 @Module({
   imports: [
@@ -55,6 +56,9 @@ import { EmailModule } from './email/email.module';
     EmailModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, {
+    provide: APP_GUARD,
+    useClass: LoginGuard
+  }]
 })
 export class AppModule {}

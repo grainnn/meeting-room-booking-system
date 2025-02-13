@@ -11,7 +11,8 @@ import {
 	HttpStatus,
 	UnauthorizedException,
 	UseInterceptors,
-	ClassSerializerInterceptor
+	ClassSerializerInterceptor,
+	SetMetadata
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -153,12 +154,14 @@ export class UserController {
 		}
 	}
 
+	@SetMetadata('require-login', true)
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get()
 	findAll() { 
 		return this.userService.findAll();
 	}
 	
+	@SetMetadata('require-login', true)
 	@UseInterceptors(ClassSerializerInterceptor)
 	@ApiParam({
 		name: 'id',
@@ -179,11 +182,13 @@ export class UserController {
     return this.userService.findUserById(+id, false);
   }
 
+	@SetMetadata('require-login', true)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDto: UpdateDto) {
     return this.userService.update(+id, updateDto);
   }
 
+	@SetMetadata('require-login', true)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
