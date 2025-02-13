@@ -12,7 +12,8 @@ import { Permission } from './user/entities/permission.entity';
 import { Role } from './user/entities/role.entity';
 import { RedisModule } from './redis/redis.module';
 import { EmailModule } from './email/email.module';
-import { LoginGuard } from './login.guard';
+import { LoginGuard } from './guard/login.guard';
+import { PermissionGuard } from './guard/permission.guard';
 
 @Module({
   imports: [
@@ -59,6 +60,9 @@ import { LoginGuard } from './login.guard';
   providers: [AppService, {
     provide: APP_GUARD,
     useClass: LoginGuard
+  }, {
+    provide: APP_GUARD,
+    useClass: PermissionGuard
   }]
 })
 export class AppModule {}

@@ -4,20 +4,6 @@ import { Reflector} from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
-
-interface JwtUserData { 
-  userId: number;
-  username: string;
-  // roles: [];
-  // permissions: [];
-}
-
-declare module 'express' {
-  interface Request {
-    user: JwtUserData
-  }
-}
-
 @Injectable()
 export class LoginGuard implements CanActivate {
   @Inject()

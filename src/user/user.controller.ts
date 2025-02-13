@@ -11,8 +11,7 @@ import {
 	HttpStatus,
 	UnauthorizedException,
 	UseInterceptors,
-	ClassSerializerInterceptor,
-	SetMetadata
+	ClassSerializerInterceptor
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -25,6 +24,7 @@ import { RedisService } from 'src/redis/redis.service';
 import { EmailService } from 'src/email/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { RequireLogin } from 'src/custom.decorator';
 
 @Controller('user')
 export class UserController {
@@ -154,14 +154,14 @@ export class UserController {
 		}
 	}
 
-	@SetMetadata('require-login', true)
+	@RequireLogin()
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get()
 	findAll() { 
 		return this.userService.findAll();
 	}
 	
-	@SetMetadata('require-login', true)
+	@RequireLogin()
 	@UseInterceptors(ClassSerializerInterceptor)
 	@ApiParam({
 		name: 'id',
@@ -182,13 +182,13 @@ export class UserController {
     return this.userService.findUserById(+id, false);
   }
 
-	@SetMetadata('require-login', true)
+	@RequireLogin()
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDto: UpdateDto) {
     return this.userService.update(+id, updateDto);
   }
 
-	@SetMetadata('require-login', true)
+	@RequireLogin()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
