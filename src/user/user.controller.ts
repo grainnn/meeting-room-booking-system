@@ -125,7 +125,33 @@ export class UserController {
 	}
 
 	@Get('refresh_token')
-	refreshToken() { }
+	async refreshToken(@Query('refreshToken') refreshToken: string) {
+		try {
+			const data = this.jwtService.verify(refreshToken);
+
+			const user = await this.userService.findUserById(data.userId, false)
+
+			const access_token = this.jwtService.sign({
+				userId: user?.id,
+				username: user?.name
+			}, {
+				expiresIn: this.configService.get('jwt_access_token_expires_time') || '60m'
+			})
+
+			const refresh_token = this.jwtService.sign({
+				userId: user?.id
+			}, {
+				expiresIn: this.configService.get('jwt_refresh_token_expires_time') || '7d'
+			})
+			
+			return {
+				access_token,
+				refresh_token
+			}
+		} catch (err) {
+			throw new UnauthorizedException('登录已过期，请重新登录')
+		}
+	}
 
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get()
@@ -150,7 +176,7 @@ export class UserController {
 			throw new UnauthorizedException()
 		}
 
-    return this.userService.findOne(+id);
+    return this.userService.findUserById(+id, false);
   }
 
   @Patch(':id')

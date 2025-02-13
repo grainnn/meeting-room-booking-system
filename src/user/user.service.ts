@@ -84,8 +84,13 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findUserById(id: number, isAdmin: boolean) {
+    return this.userRepository.findOne({
+      where: {
+        id,
+        isAdmin
+      }
+    })
   }
 
   update(id: number, UpdateDto: UpdateDto) {
