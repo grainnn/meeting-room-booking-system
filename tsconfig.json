@@ -17,6 +17,7 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "types": ["src/type.d.ts"]
+
+    "typeRoots": ["./node_modules/@types", "./typings"]
   }
 }
