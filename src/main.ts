@@ -12,7 +12,7 @@ async function bootstrap() {
     .setDescription('nest服务，提供给前端调试使用')
     .setVersion('1.0')
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('doc', app, document);
 
@@ -21,4 +21,3 @@ async function bootstrap() {
 }
 
 void bootstrap();
-

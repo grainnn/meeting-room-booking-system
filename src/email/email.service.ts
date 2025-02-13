@@ -1,5 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { createTransport, Transporter } from 'nodemailer'
+import { Injectable } from '@nestjs/common';
+import { createTransport, Transporter } from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -15,19 +15,19 @@ export class EmailService {
         user: this.configService.get('proxy_email'),
         pass: this.configService.get('proxy_email_auth')
       }
-    })
+    });
   }
 
   async sendMail({ to, subject, html }) {
-    console.log(this.configService.get('proxy_email'))
+    console.log(this.configService.get('proxy_email'));
     await this.transporter.sendMail({
       from: {
         name: '会议室预订系统',
         address: this.configService.get('proxy_email') as string
       },
-      to,
-      subject,
-      html
-    })
+      to: to as string,
+      subject: subject as string,
+      html: html as string
+    });
   }
 }

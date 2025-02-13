@@ -20,26 +20,24 @@ import { EmailModule } from './email/email.module';
       envFilePath: 'src/.env'
     }),
 
-    JwtModule.registerAsync(
-      {
-        inject: [ConfigService],
-        global: true,
-        useFactory(configService: ConfigService) {
-          return {
-            secret: configService.get('jwt_secret'),
-            signOptions: {
-              expiresIn: '60m'
-            }
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      global: true,
+      useFactory(configService: ConfigService) {
+        return {
+          secret: configService.get('jwt_secret'),
+          signOptions: {
+            expiresIn: '60m'
           }
-        }
+        };
       }
-    ),
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'root',
+      password: 'Sanjdw320721',
       database: 'meeting_room_booking_system',
       synchronize: true,
       logging: true,
