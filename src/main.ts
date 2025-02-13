@@ -3,6 +3,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
+import { FormatResponseInterceptor } from './format-response.interceptor';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +19,8 @@ async function bootstrap() {
   SwaggerModule.setup('doc', app, document);
 
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new FormatResponseInterceptor());
+
   await app.listen(process.env.PORT ?? 3000);
 }
 
