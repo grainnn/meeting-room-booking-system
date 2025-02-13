@@ -82,7 +82,7 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  findUserById(id: number, isAdmin: boolean): Promise<User> {
+  findUserById(id: number, isAdmin: boolean): Promise<User | null> {
     return this.userRepository.findOne({
       where: {
         id,

@@ -106,7 +106,7 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    const user = await this.userService.login(loginDto, false);
+    const user = (await this.userService.login(loginDto, false)) as any;
 
     user.accessToken = this.jwtService.sign(
       {
@@ -145,7 +145,10 @@ export class UserController {
     try {
       const data: JwtUserData = this.jwtService.verify(refreshToken);
 
-      const user = await this.userService.findUserById(data.userId, false);
+      const user = (await this.userService.findUserById(
+        data.userId,
+        false
+      )) as any;
 
       const access_token = this.jwtService.sign(
         {

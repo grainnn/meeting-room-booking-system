@@ -22,6 +22,10 @@ async function bootstrap() {
   app.useGlobalInterceptors(new FormatResponseInterceptor());
   app.useGlobalInterceptors(new InvokeRecordInterceptor());
 
+  app.enableCors({
+    origin: '*'
+  });
+
   await app.listen(process.env.PORT ?? 3000);
 }
 
