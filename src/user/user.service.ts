@@ -25,9 +25,7 @@ export class UserService {
   private redisService: RedisService;
 
   async register(registerDto: RegisterDto) {
-    const captcha = await this.redisService.get(
-      `captcha_${registerDto.email}`
-    );
+    const captcha = await this.redisService.get(`captcha_${registerDto.email}`);
 
     if (!captcha) {
       throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
@@ -59,13 +57,13 @@ export class UserService {
   }
 
   async login(loginDto: LoginDto, isAdmin: boolean): Promise<User> {
-    const user = await this.userRepository.findOne({
+    const user = (await this.userRepository.findOne({
       where: {
         username: loginDto.username,
         isAdmin
       },
       relations: ['roles', 'roles.permissions']
-    }) as LoginDto
+    })) as LoginDto;
 
     if (!user) {
       throw new HttpException('用户名或密码错误', HttpStatus.BAD_REQUEST);
@@ -84,11 +82,17 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findUserById(id: number, isAdmin: boolean): Promise<User> {
+    return this.userRepository.findOne({
+      where: {
+        id,
+        isAdmin
+      }
+    });
   }
 
-  update(id: number, UpdateDto: UpdateDto) {
+  update(id: number, updateDto: UpdateDto) {
+    console.log(updateDto);
     return `This action updates a #${id} user`;
   }
 

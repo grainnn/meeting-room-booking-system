@@ -31,6 +31,8 @@ import { RedisService } from 'src/redis/redis.service';
 import { EmailService } from 'src/email/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { RequireLogin } from 'src/custom.decorator';
+import { JwtUserData } from 'src/typings';
 
 @Controller('user')
 export class UserController {
@@ -104,7 +106,7 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    const user = (await this.userService.login(loginDto, false)) as any;
+    const user = await this.userService.login(loginDto, false);
 
     user.accessToken = this.jwtService.sign(
       {
@@ -139,14 +141,51 @@ export class UserController {
   }
 
   @Get('refresh_token')
-  refreshToken() {}
+  async refreshToken(@Query('refreshToken') refreshToken: string) {
+    try {
+      const data: JwtUserData = this.jwtService.verify(refreshToken);
 
+      const user = await this.userService.findUserById(data.userId, false);
+
+      const access_token = this.jwtService.sign(
+        {
+          userId: user?.id,
+          username: user?.name
+        },
+        {
+          expiresIn:
+            this.configService.get('jwt_access_token_expires_time') || '60m'
+        }
+      );
+
+      const refresh_token = this.jwtService.sign(
+        {
+          userId: user?.id
+        },
+        {
+          expiresIn:
+            this.configService.get('jwt_refresh_token_expires_time') || '7d'
+        }
+      );
+
+      return {
+        access_token,
+        refresh_token
+      };
+    } catch (err: any) {
+      console.log(err);
+      throw new UnauthorizedException('登录已过期，请重新登录');
+    }
+  }
+
+  @RequireLogin()
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   findAll() {
     return this.userService.findAll();
   }
 
+  @RequireLogin()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiParam({
     name: 'id',
@@ -164,14 +203,16 @@ export class UserController {
       throw new UnauthorizedException();
     }
 
-    return this.userService.findOne(+id);
+    return this.userService.findUserById(+id, false);
   }
 
+  @RequireLogin()
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDto: UpdateDto) {
     return this.userService.update(+id, updateDto);
   }
 
+  @RequireLogin()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);

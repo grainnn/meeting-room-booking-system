@@ -25,7 +25,7 @@ export class User {
   })
   username: string;
 
-	// 屏蔽vo
+  // 屏蔽vo
   @Exclude()
   @Column({
     length: 50,
@@ -33,11 +33,11 @@ export class User {
   })
   password: string;
 
-	// 追加vo
-	@Expose()
-	get name(): string {
-		return `${this.username} ${this.email}`
-	}
+  // 追加vo
+  @Expose()
+  get name(): string {
+    return `${this.username} ${this.email}`;
+  }
 
   @Column({
     comment: '邮箱',
