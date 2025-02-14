@@ -12,3 +12,5 @@ npm i -g @nestjs/cli
 ```sql
 create database meeting_room_booking_system
 ```
+
+3. mysql/redis服务已启动
