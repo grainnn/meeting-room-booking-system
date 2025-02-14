@@ -25,15 +25,15 @@ export class UserService {
   private redisService: RedisService;
 
   async register(registerDto: RegisterDto) {
-    const captcha = await this.redisService.get(`captcha_${registerDto.email}`);
+    // const captcha = await this.redisService.get(`captcha_${registerDto.email}`);
 
-    if (!captcha) {
-      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
-    }
+    // if (!captcha) {
+    //   throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
+    // }
 
-    if (registerDto.captcha !== captcha) {
-      throw new HttpException('验证码错误', HttpStatus.BAD_REQUEST);
-    }
+    // if (registerDto.captcha !== captcha) {
+    //   throw new HttpException('验证码错误', HttpStatus.BAD_REQUEST);
+    // }
 
     const foundUser = await this.userRepository.findOneBy({
       username: registerDto.username
@@ -95,6 +95,8 @@ export class UserService {
     console.log(updateDto);
     return `This action updates a #${id} user`;
   }
+
+  upload() {}
 
   remove(id: number) {
     return `This action removes a #${id} user`;

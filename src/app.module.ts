@@ -39,7 +39,7 @@ import { PermissionGuard } from './guard/permission.guard';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'Sanjdw320721',
+      password: 'root',
       database: 'meeting_room_booking_system',
       synchronize: true,
       logging: true,

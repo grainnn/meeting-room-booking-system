@@ -21,18 +21,19 @@ import {
   ApiResponse,
   ApiTags
 } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { UserService } from './user.service';
 import { RegisterDto } from './dto/register.dto';
 import { UpdateDto } from './dto/update.dto';
 import { LoginDto } from './dto/login.dto';
-
 import { RedisService } from 'src/redis/redis.service';
 import { EmailService } from 'src/email/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RequireLogin } from 'src/custom.decorator';
 import { JwtUserData } from 'src/typings';
+import { storage } from '../upload-file-storage'
 
 @Controller('user')
 export class UserController {
@@ -220,4 +221,12 @@ export class UserController {
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }
+
+  @RequireLogin()
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', {
+    dest: 'uploads',
+    storage: storage
+  }))
+  uploadFile() {}
 }
