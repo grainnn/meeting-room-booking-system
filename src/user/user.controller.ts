@@ -11,7 +11,9 @@ import {
   HttpStatus,
   UnauthorizedException,
   UseInterceptors,
-  ClassSerializerInterceptor
+  ClassSerializerInterceptor,
+  BadRequestException,
+  UploadedFile
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -34,6 +36,7 @@ import { ConfigService } from '@nestjs/config';
 import { RequireLogin } from 'src/custom.decorator';
 import { JwtUserData } from 'src/typings';
 import { storage } from '../upload-file-storage'
+import path from 'path';
 
 @Controller('user')
 export class UserController {
@@ -226,7 +229,24 @@ export class UserController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', {
     dest: 'uploads',
-    storage: storage
+    storage: storage,
+    limits: {
+      fileSize: 1024 * 1024 * 3
+    },
+    fileFilter(req, file, callback) {
+      const extname = path.extname(file.originalname);
+
+      // 前端也可以校验
+      if (['.jpg', '.png', '.gif'].includes(extname)) {
+        callback(null, true);
+      } else {
+        callback(new BadRequestException('只能上传图片'), false);
+      }
+    }
   }))
-  uploadFile() {}
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log('file', file);
+
+    return file.path;
+  }
 }

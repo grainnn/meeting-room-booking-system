@@ -22,6 +22,11 @@ export class RegisterDto {
   )
   email: string;
 
+  @IsNotEmpty({
+    message: '昵称不能为空'
+  })
+  nickName: string;
+
   // @IsNotEmpty({
   //   message: '验证码不能为空'
   // })

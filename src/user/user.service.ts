@@ -45,8 +45,9 @@ export class UserService {
 
     const newUser = new User();
     newUser.username = registerDto.username;
-    newUser.email = registerDto.email;
     newUser.password = md5(registerDto.password);
+    newUser.email = registerDto.email;
+    newUser.nickName = registerDto.nickName;
 
     try {
       await this.userRepository.save(newUser);

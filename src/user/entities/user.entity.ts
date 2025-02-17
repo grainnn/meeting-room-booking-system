@@ -25,6 +25,12 @@ export class User {
   })
   username: string;
 
+  @Column({
+    length: 50,
+    comment: '昵称'
+  })
+  nickName: string;
+
   // 屏蔽vo
   @Exclude()
   @Column({
